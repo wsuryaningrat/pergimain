@@ -8,3 +8,9 @@ body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
 }
+
+/* Minimal map look: desaturate the standard OSM tiles so the base map
+   stays calm and doesn't compete with the colored category markers. */
+.map-tiles-minimal {
+  filter: grayscale(0.85) contrast(0.95) brightness(1.08) saturate(0.9);
+}
