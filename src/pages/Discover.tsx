@@ -4,7 +4,7 @@ import { Search, SlidersHorizontal, List, Map as MapIcon, Columns } from "lucide
 import { categoryLabel, places, type Category, type Place } from "../data/places";
 import PlaceCard from "../components/PlaceCard";
 import PlaceListItem from "../components/PlaceListItem";
-import PlaceMap from "../components/PlaceMap";
+import MinimalMap from "../components/MinimalMap";
 
 const categories: Category[] = ["cafe", "kuliner", "wisata", "nugas"];
 type ViewMode = "list" | "split" | "map";
@@ -184,10 +184,11 @@ export default function Discover() {
           ))}
         </div>
       ) : view === "map" ? (
-        <PlaceMap
+        <MinimalMap
           places={filtered}
           activeId={activePlace?.id}
           onMarkerClick={setActivePlace}
+          onClose={() => setActivePlace(null)}
           heightClassName="h-[560px]"
         />
       ) : (
@@ -203,10 +204,11 @@ export default function Discover() {
             ))}
           </div>
           <div className="md:col-span-3">
-            <PlaceMap
+            <MinimalMap
               places={filtered}
               activeId={activePlace?.id}
               onMarkerClick={setActivePlace}
+              onClose={() => setActivePlace(null)}
               heightClassName="h-[560px]"
             />
           </div>

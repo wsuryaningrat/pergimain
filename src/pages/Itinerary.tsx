@@ -3,7 +3,7 @@ import { ArrowUp, ArrowDown, Trash2, MapPinned, Wallet, Clock } from "lucide-rea
 import { useApp } from "../context/AppContext";
 import { categoryColor, categoryLabel } from "../data/places";
 import { formatIDR, formatMinutes, haversineKm, estimateTravelMinutes } from "../utils/format";
-import PlaceMap from "../components/PlaceMap";
+import MinimalMap from "../components/MinimalMap";
 
 const TRANSPORT_COST_PER_KM = 3000;
 
@@ -54,7 +54,7 @@ export default function Itinerary() {
         <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-700">
           <MapPinned size={16} /> Ringkasan Rute
         </h2>
-        <PlaceMap places={itinerary.map((i) => i.place)} route={itinerary.map((i) => i.place)} heightClassName="h-[340px]" />
+        <MinimalMap places={itinerary.map((i) => i.place)} route={itinerary.map((i) => i.place)} heightClassName="h-[340px]" />
       </div>
 
       <div className="flex flex-col gap-3">
