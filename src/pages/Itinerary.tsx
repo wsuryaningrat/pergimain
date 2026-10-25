@@ -1,14 +1,37 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowUp, ArrowDown, Trash2, MapPinned, Wallet, Clock } from "lucide-react";
+import { ArrowUp, ArrowDown, Trash2, MapPinned, Wallet, Clock, Navigation, Loader2 } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { categoryColor, categoryLabel } from "../data/places";
 import { formatIDR, formatMinutes, haversineKm, estimateTravelMinutes } from "../utils/format";
+import { fetchDrivingRoute, type DrivingRoute } from "../utils/osrm";
 import MinimalMap from "../components/MinimalMap";
 
 const TRANSPORT_COST_PER_KM = 3000;
 
 export default function Itinerary() {
   const { itinerary, removeFromItinerary, moveItinerary, clearItinerary } = useApp();
+  const [drivingRoute, setDrivingRoute] = useState<DrivingRoute | null>(null);
+  const [routeLoading, setRouteLoading] = useState(false);
+
+  const placeIdsKey = itinerary.map((i) => i.place.id).join(",");
+
+  useEffect(() => {
+    if (itinerary.length < 2) {
+      setDrivingRoute(null);
+      return;
+    }
+    const controller = new AbortController();
+    setRouteLoading(true);
+    fetchDrivingRoute(
+      itinerary.map((i) => i.place),
+      controller.signal
+    )
+      .then((result) => setDrivingRoute(result))
+      .finally(() => setRouteLoading(false));
+    return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [placeIdsKey]);
 
   if (itinerary.length === 0) {
     return (
@@ -22,8 +45,14 @@ export default function Itinerary() {
     );
   }
 
+  const usingRealRoute = Boolean(drivingRoute && drivingRoute.legs.length === itinerary.length - 1);
+
   const legs = itinerary.slice(1).map((item, i) => {
     const prev = itinerary[i].place;
+    if (usingRealRoute) {
+      const leg = drivingRoute!.legs[i];
+      return { km: leg.distanceKm, minutes: leg.durationMin };
+    }
     const km = haversineKm(prev, item.place);
     return { km, minutes: estimateTravelMinutes(km) };
   });
@@ -51,10 +80,26 @@ export default function Itinerary() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-          <MapPinned size={16} /> Ringkasan Rute
+        <h2 className="flex items-center justify-between text-sm font-semibold text-slate-700">
+          <span className="flex items-center gap-2">
+            <MapPinned size={16} /> Ringkasan Rute
+          </span>
+          {routeLoading ? (
+            <span className="flex items-center gap-1 text-xs font-medium text-slate-400">
+              <Loader2 size={12} className="animate-spin" /> Mencari rute tercepat...
+            </span>
+          ) : usingRealRoute ? (
+            <span className="flex items-center gap-1 text-xs font-medium text-emerald-600">
+              <Navigation size={12} /> Rute jalan nyata
+            </span>
+          ) : null}
         </h2>
-        <MinimalMap places={itinerary.map((i) => i.place)} route={itinerary.map((i) => i.place)} heightClassName="h-[340px]" />
+        <MinimalMap
+          places={itinerary.map((i) => i.place)}
+          route={itinerary.map((i) => i.place)}
+          routeLine={usingRealRoute ? drivingRoute!.geometry : undefined}
+          heightClassName="h-[340px]"
+        />
       </div>
 
       <div className="flex flex-col gap-3">
@@ -112,7 +157,9 @@ export default function Itinerary() {
               {index < itinerary.length - 1 && (
                 <div className="flex items-center gap-2 pl-1 text-xs text-slate-400">
                   <Clock size={12} />
-                  Estimasi perjalanan ~{legs[index].minutes} menit ({legs[index].km.toFixed(1)} km, simulasi)
+                  {usingRealRoute
+                    ? `Estimasi perjalanan ~${legs[index].minutes} menit (${legs[index].km.toFixed(1)} km, rute jalan)`
+                    : `Estimasi perjalanan ~${legs[index].minutes} menit (${legs[index].km.toFixed(1)} km, simulasi)`}
                 </div>
               )}
             </div>
@@ -135,7 +182,9 @@ export default function Itinerary() {
           <span className="text-lg font-bold text-orange-700">{formatIDR(grandTotal)}</span>
         </div>
         <p className="mt-3 text-xs text-slate-400">
-          ⚠️ Estimasi waktu tempuh dan biaya transportasi adalah simulasi berbasis jarak garis lurus, bukan data rute nyata.
+          {usingRealRoute
+            ? "✅ Jarak dan waktu tempuh dihitung dari rute jalan nyata (OSRM). Estimasi biaya transportasi tetap simulasi."
+            : "⚠️ Estimasi waktu tempuh dan biaya transportasi adalah simulasi berbasis jarak garis lurus, bukan data rute nyata."}
         </p>
       </div>
     </div>

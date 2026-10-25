@@ -1,11 +1,12 @@
 import { NavLink } from "react-router-dom";
-import { Compass, Heart, MapPinned, Home } from "lucide-react";
+import { Compass, Heart, MapPinned, Home, PlusCircle } from "lucide-react";
 
 const links = [
   { to: "/", label: "Home", icon: Home },
   { to: "/discover", label: "Discover", icon: Compass },
   { to: "/saved", label: "Saved", icon: Heart },
   { to: "/itinerary", label: "Itinerary", icon: MapPinned },
+  { to: "/tambah", label: "Tambah", icon: PlusCircle },
 ];
 
 export default function NavBar() {

@@ -1,14 +1,14 @@
 import type { ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Clock, Heart, MapPin, Star, PlusCircle, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Clock, Heart, MapPin, Star, PlusCircle, CheckCircle2, UserRound } from "lucide-react";
 import { categoryColor, categoryLabel } from "../data/places";
-import { getPlaceById, useApp } from "../context/AppContext";
+import { useApp } from "../context/AppContext";
 import { formatIDR, formatMinutes } from "../utils/format";
 
 export default function PlaceDetail() {
   const { id } = useParams();
-  const place = id ? getPlaceById(id) : undefined;
-  const { isSaved, toggleSaved, addToItinerary, itinerary } = useApp();
+  const { isSaved, toggleSaved, addToItinerary, itinerary, getPlace } = useApp();
+  const place = id ? getPlace(id) : undefined;
 
   if (!place) {
     return (
@@ -46,14 +46,23 @@ export default function PlaceDetail() {
       <div className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-3">
           <h1 className="text-2xl font-bold text-slate-900">{place.name}</h1>
-          <div className="flex items-center gap-1 rounded-full bg-amber-50 px-3 py-1 font-semibold text-amber-600">
-            <Star size={16} className="fill-amber-500 text-amber-500" />
-            {place.rating}
-          </div>
+          {place.rating > 0 ? (
+            <div className="flex items-center gap-1 rounded-full bg-amber-50 px-3 py-1 font-semibold text-amber-600">
+              <Star size={16} className="fill-amber-500 text-amber-500" />
+              {place.rating}
+            </div>
+          ) : (
+            <div className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-600">Baru</div>
+          )}
         </div>
         <p className="flex items-center gap-1 text-sm text-slate-500">
           <MapPin size={16} /> {place.area}, Bandung
         </p>
+        {place.addedByUser && (
+          <p className="flex items-center gap-1 text-xs font-medium text-sky-600">
+            <UserRound size={14} /> Ditambahkan oleh pengguna
+          </p>
+        )}
         <p className="text-slate-600">{place.description}</p>
 
         <div className="flex flex-wrap gap-2">

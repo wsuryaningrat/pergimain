@@ -1,12 +1,11 @@
 import { Link } from "react-router-dom";
 import { Heart } from "lucide-react";
-import { places } from "../data/places";
 import { useApp } from "../context/AppContext";
 import PlaceCard from "../components/PlaceCard";
 
 export default function Saved() {
-  const { savedIds } = useApp();
-  const savedPlaces = places.filter((p) => savedIds.has(p.id));
+  const { savedIds, allPlaces } = useApp();
+  const savedPlaces = allPlaces.filter((p) => savedIds.has(p.id));
 
   return (
     <div className="flex flex-col gap-6 pb-10">

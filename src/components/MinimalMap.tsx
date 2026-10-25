@@ -13,8 +13,19 @@ const categoryDot: Record<Category, string> = {
   nugas: "#0284c7",
 };
 
-function makeIcon(color: string, label?: string | number, active?: boolean) {
-  const size = active ? 28 : label ? 24 : 16;
+// Distinct glyph per category so each kind of place is recognizable on the
+// map at a glance, without having to open a popup.
+const categoryGlyph: Record<Category, string> = {
+  cafe: "☕",
+  kuliner: "🍜",
+  wisata: "🏞️",
+  nugas: "💻",
+};
+
+function makeIcon(category: Category, color: string, label?: string | number, active?: boolean) {
+  const size = active ? 32 : label ? 28 : 24;
+  const content = label ?? categoryGlyph[category];
+  const fontSize = label ? 12 : size * 0.52;
   return L.divIcon({
     className: "",
     html: `<div style="
@@ -22,9 +33,9 @@ function makeIcon(color: string, label?: string | number, active?: boolean) {
       background:${color};border:2px solid white;
       box-shadow:0 1px 4px rgba(0,0,0,0.35);
       display:flex;align-items:center;justify-content:center;
-      color:white;font-weight:700;font-size:${label ? 11 : 0}px;
+      color:white;font-weight:700;font-size:${fontSize}px;line-height:1;
       ${active ? "outline:3px solid rgba(249,115,22,0.45);" : ""}
-    ">${label ?? ""}</div>`,
+    ">${content}</div>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
     popupAnchor: [0, -size / 2],
@@ -41,27 +52,49 @@ function FitBounds({ places }: { places: Place[] }) {
     }
     const bounds = L.latLngBounds(places.map((p) => [p.latitude, p.longitude] as [number, number]));
     map.fitBounds(bounds, { padding: [32, 32] });
-  }, [places, map]);
+    // run once on mount / when the overall place set changes, not on every selection
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [places.map((p) => p.id).join(","), map]);
+  return null;
+}
+
+function FlyToActive({ place }: { place: Place | undefined }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!place) return;
+    map.flyTo([place.latitude, place.longitude], Math.max(map.getZoom(), 15), { duration: 0.6 });
+  }, [place, map]);
   return null;
 }
 
 interface MinimalMapProps {
   places: Place[];
   route?: Place[];
+  routeLine?: [number, number][];
   activeId?: string;
   onMarkerClick?: (place: Place) => void;
   onClose?: () => void;
   heightClassName?: string;
 }
 
-export default function MinimalMap({ places, route, activeId, onMarkerClick, heightClassName = "h-[420px]" }: MinimalMapProps) {
+export default function MinimalMap({
+  places,
+  route,
+  routeLine,
+  activeId,
+  onMarkerClick,
+  heightClassName = "h-[420px]",
+}: MinimalMapProps) {
   const center: [number, number] = useMemo(() => {
     if (places.length > 0) return [places[0].latitude, places[0].longitude];
     return [-6.9147, 107.6098];
   }, [places]);
 
-  const routeLine = route && route.length > 1 ? route.map((p) => [p.latitude, p.longitude] as [number, number]) : null;
+  const straightRoute = route && route.length > 1 ? route.map((p) => [p.latitude, p.longitude] as [number, number]) : null;
+  const drawnRoute = routeLine && routeLine.length > 1 ? routeLine : straightRoute;
+  const isRealRoute = Boolean(routeLine && routeLine.length > 1);
   const routeIds = new Set((route ?? []).map((p) => p.id));
+  const activePlace = places.find((p) => p.id === activeId);
 
   return (
     <div className={`relative w-full overflow-hidden rounded-2xl border border-slate-200 ${heightClassName}`}>
@@ -73,9 +106,17 @@ export default function MinimalMap({ places, route, activeId, onMarkerClick, hei
           maxZoom={19}
         />
         <FitBounds places={places.length > 0 ? places : route ?? []} />
+        <FlyToActive place={activePlace} />
 
-        {routeLine && (
-          <Polyline positions={routeLine} pathOptions={{ color: "#f97316", weight: 3, opacity: 0.85, dashArray: "6 6" }} />
+        {drawnRoute && (
+          <Polyline
+            positions={drawnRoute}
+            pathOptions={
+              isRealRoute
+                ? { color: "#f97316", weight: 4, opacity: 0.9 }
+                : { color: "#f97316", weight: 3, opacity: 0.85, dashArray: "6 6" }
+            }
+          />
         )}
 
         {places.map((place) => {
@@ -86,7 +127,7 @@ export default function MinimalMap({ places, route, activeId, onMarkerClick, hei
             <Marker
               key={place.id}
               position={[place.latitude, place.longitude]}
-              icon={makeIcon(color, label, place.id === activeId)}
+              icon={makeIcon(place.category, color, label, place.id === activeId)}
               eventHandlers={{
                 click: () => onMarkerClick?.(place),
               }}

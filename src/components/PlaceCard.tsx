@@ -36,10 +36,14 @@ export default function PlaceCard({ place }: { place: Place }) {
           <Link to={`/place/${place.id}`} className="font-semibold text-slate-900 hover:text-orange-600">
             {place.name}
           </Link>
-          <div className="flex items-center gap-1 text-sm font-medium text-amber-600">
-            <Star size={14} className="fill-amber-500 text-amber-500" />
-            {place.rating}
-          </div>
+          {place.rating > 0 ? (
+            <div className="flex items-center gap-1 text-sm font-medium text-amber-600">
+              <Star size={14} className="fill-amber-500 text-amber-500" />
+              {place.rating}
+            </div>
+          ) : (
+            <span className="rounded-full bg-sky-50 px-2 py-0.5 text-xs font-semibold text-sky-600">Baru</span>
+          )}
         </div>
         <p className="text-sm text-slate-500">{place.area}</p>
         <div className="flex flex-wrap gap-1.5">

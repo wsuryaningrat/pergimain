@@ -5,6 +5,7 @@ import Discover from "./pages/Discover";
 import PlaceDetail from "./pages/PlaceDetail";
 import Saved from "./pages/Saved";
 import Itinerary from "./pages/Itinerary";
+import AddPlace from "./pages/AddPlace";
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="/place/:id" element={<PlaceDetail />} />
           <Route path="/saved" element={<Saved />} />
           <Route path="/itinerary" element={<Itinerary />} />
+          <Route path="/tambah" element={<AddPlace />} />
         </Routes>
       </main>
     </div>

@@ -1,8 +1,21 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { places, type Place } from "../data/places";
 
 interface ItineraryItem {
   place: Place;
+}
+
+const USER_PLACES_KEY = "pergimain_user_places";
+
+function loadUserPlaces(): Place[] {
+  try {
+    const raw = localStorage.getItem(USER_PLACES_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
 }
 
 interface AppContextValue {
@@ -14,6 +27,10 @@ interface AppContextValue {
   removeFromItinerary: (id: string) => void;
   moveItinerary: (index: number, direction: -1 | 1) => void;
   clearItinerary: () => void;
+  allPlaces: Place[];
+  userPlaces: Place[];
+  addUserPlace: (place: Place) => void;
+  getPlace: (id: string) => Place | undefined;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -21,6 +38,15 @@ const AppContext = createContext<AppContextValue | null>(null);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [itinerary, setItinerary] = useState<ItineraryItem[]>([]);
+  const [userPlaces, setUserPlaces] = useState<Place[]>(() => loadUserPlaces());
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(USER_PLACES_KEY, JSON.stringify(userPlaces));
+    } catch {
+      // ignore storage failures (e.g. private browsing quota)
+    }
+  }, [userPlaces]);
 
   const toggleSaved = (id: string) => {
     setSavedIds((prev) => {
@@ -57,6 +83,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const clearItinerary = () => setItinerary([]);
 
+  const addUserPlace = (place: Place) => {
+    setUserPlaces((prev) => [place, ...prev]);
+  };
+
+  const allPlaces = useMemo(() => [...places, ...userPlaces], [userPlaces]);
+
+  const getPlace = (id: string) => allPlaces.find((p) => p.id === id);
+
   const value = useMemo(
     () => ({
       savedIds,
@@ -67,8 +101,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       removeFromItinerary,
       moveItinerary,
       clearItinerary,
+      allPlaces,
+      userPlaces,
+      addUserPlace,
+      getPlace,
     }),
-    [savedIds, itinerary]
+    [savedIds, itinerary, allPlaces, userPlaces]
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
@@ -78,8 +116,4 @@ export function useApp() {
   const ctx = useContext(AppContext);
   if (!ctx) throw new Error("useApp must be used within AppProvider");
   return ctx;
-}
-
-export function getPlaceById(id: string): Place | undefined {
-  return places.find((p) => p.id === id);
 }

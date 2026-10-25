@@ -1,17 +1,17 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search, SlidersHorizontal, List, Map as MapIcon, Columns } from "lucide-react";
-import { categoryLabel, places, type Category, type Place } from "../data/places";
+import { categoryLabel, type Category, type Place } from "../data/places";
+import { useApp } from "../context/AppContext";
 import PlaceCard from "../components/PlaceCard";
 import PlaceListItem from "../components/PlaceListItem";
 import MinimalMap from "../components/MinimalMap";
 
 const categories: Category[] = ["cafe", "kuliner", "wisata", "nugas"];
 type ViewMode = "list" | "split" | "map";
-const allAreas = Array.from(new Set(places.map((p) => p.area))).sort();
-const allTags = Array.from(new Set(places.flatMap((p) => p.tags))).sort();
 
 export default function Discover() {
+  const { allPlaces } = useApp();
   const [params, setParams] = useSearchParams();
   const initialCategory = (params.get("category") as Category) || "all";
 
@@ -25,8 +25,11 @@ export default function Discover() {
   const [view, setView] = useState<ViewMode>("split");
   const [activePlace, setActivePlace] = useState<Place | null>(null);
 
+  const allAreas = useMemo(() => Array.from(new Set(allPlaces.map((p) => p.area))).sort(), [allPlaces]);
+  const allTags = useMemo(() => Array.from(new Set(allPlaces.flatMap((p) => p.tags))).sort(), [allPlaces]);
+
   const filtered = useMemo(() => {
-    return places.filter((p) => {
+    return allPlaces.filter((p) => {
       if (category !== "all" && p.category !== category) return false;
       if (area !== "all" && p.area !== area) return false;
       if (p.price_level > maxPrice) return false;
@@ -36,7 +39,7 @@ export default function Discover() {
         return false;
       return true;
     });
-  }, [category, area, maxPrice, minRating, tag, query]);
+  }, [allPlaces, category, area, maxPrice, minRating, tag, query]);
 
   const handleCategory = (cat: Category | "all") => {
     setCategory(cat);

@@ -15,7 +15,8 @@ export interface Place {
   description: string;
   estimated_cost_per_person: number;
   image: string;
-  demo: true;
+  demo: boolean;
+  addedByUser?: boolean;
 }
 
 export const categoryLabel: Record<Category, string> = {
@@ -187,6 +188,23 @@ export const places: Place[] = [
     description: "Batagor goreng renyah dengan saus kacang khas, salah satu batagor terenak di Bandung.",
     estimated_cost_per_person: 20000,
     image: img("photo-1559314809-0f31657def5e"),
+    demo: true,
+  },
+  {
+    id: "kuliner-5",
+    name: "Oldpot",
+    category: "kuliner",
+    area: "Cihapit",
+    latitude: -6.9122883,
+    longitude: 107.6293701,
+    price_level: 2,
+    rating: 4.5,
+    opening_hours: "10:00 - 23:00",
+    visit_duration_min: 90,
+    tags: ["claypot", "fusion asia", "nongkrong", "aesthetic"],
+    description: "Resto fusion Asia dengan konsep rumah jadul yang asri, terkenal lewat menu claypot dragon dan mie acehnya.",
+    estimated_cost_per_person: 55000,
+    image: img("photo-1559847844-5315695dadae"),
     demo: true,
   },
   {
