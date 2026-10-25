@@ -193,7 +193,16 @@ export default function Discover() {
         />
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
-          <div className="flex max-h-[560px] flex-col gap-2 overflow-y-auto pr-1 md:col-span-2">
+          <div className="order-1 md:order-2 md:col-span-3">
+            <MinimalMap
+              places={filtered}
+              activeId={activePlace?.id}
+              onMarkerClick={setActivePlace}
+              onClose={() => setActivePlace(null)}
+              heightClassName="h-[320px] md:h-[560px]"
+            />
+          </div>
+          <div className="order-2 md:order-1 flex max-h-[560px] flex-col gap-2 overflow-y-auto pr-1 md:col-span-2">
             {filtered.map((place) => (
               <PlaceListItem
                 key={place.id}
@@ -202,15 +211,6 @@ export default function Discover() {
                 onSelect={setActivePlace}
               />
             ))}
-          </div>
-          <div className="md:col-span-3">
-            <MinimalMap
-              places={filtered}
-              activeId={activePlace?.id}
-              onMarkerClick={setActivePlace}
-              onClose={() => setActivePlace(null)}
-              heightClassName="h-[560px]"
-            />
           </div>
         </div>
       )}
