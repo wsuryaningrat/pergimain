@@ -15,15 +15,30 @@ const categoryDot: Record<Category, string> = {
 const VIEW = 100;
 const PAD = 10;
 
+function clamp(v: number, lo: number, hi: number) {
+  return Math.min(hi, Math.max(lo, v));
+}
+
+// Interpolated percentile so a couple of far-flung outliers (e.g. a day-trip
+// destination outside the city) don't stretch the scale and squash everything
+// else into a corner. Outliers are clamped to the map edge instead.
+function percentile(sorted: number[], p: number) {
+  const idx = (sorted.length - 1) * p;
+  const lo = Math.floor(idx);
+  const hi = Math.ceil(idx);
+  if (lo === hi) return sorted[lo];
+  return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
+}
+
 function project(places: Place[]) {
   if (places.length === 0) return () => ({ x: VIEW / 2, y: VIEW / 2 });
 
-  const lats = places.map((p) => p.latitude);
-  const lngs = places.map((p) => p.longitude);
-  let minLat = Math.min(...lats);
-  let maxLat = Math.max(...lats);
-  let minLng = Math.min(...lngs);
-  let maxLng = Math.max(...lngs);
+  const lats = [...places.map((p) => p.latitude)].sort((a, b) => a - b);
+  const lngs = [...places.map((p) => p.longitude)].sort((a, b) => a - b);
+  let minLat = percentile(lats, 0.05);
+  let maxLat = percentile(lats, 0.95);
+  let minLng = percentile(lngs, 0.05);
+  let maxLng = percentile(lngs, 0.95);
 
   // keep a minimum spread so a single/close cluster doesn't divide by ~0
   const minSpread = 0.01;
@@ -39,9 +54,9 @@ function project(places: Place[]) {
   }
 
   return (place: Place) => {
-    const x = PAD + ((place.longitude - minLng) / (maxLng - minLng)) * (VIEW - 2 * PAD);
-    const y = PAD + ((maxLat - place.latitude) / (maxLat - minLat)) * (VIEW - 2 * PAD);
-    return { x, y };
+    const xRatio = clamp((place.longitude - minLng) / (maxLng - minLng), 0, 1);
+    const yRatio = clamp((maxLat - place.latitude) / (maxLat - minLat), 0, 1);
+    return { x: PAD + xRatio * (VIEW - 2 * PAD), y: PAD + yRatio * (VIEW - 2 * PAD) };
   };
 }
 
@@ -156,6 +171,17 @@ export default function MinimalMap({ places, route, activeId, onMarkerClick, onC
       <p className="pointer-events-none absolute left-2 top-2 rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-medium text-slate-400">
         Peta skematis · bukan skala geografis asli
       </p>
+
+      {!activePlace && (
+        <div className="pointer-events-none absolute bottom-2 right-2 flex flex-wrap justify-end gap-x-2 gap-y-1 rounded-lg bg-white/80 px-2 py-1">
+          {(Object.keys(categoryDot) as Category[]).map((cat) => (
+            <span key={cat} className="flex items-center gap-1 text-[9px] font-medium text-slate-500">
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: categoryDot[cat] }} />
+              {categoryLabel[cat]}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
