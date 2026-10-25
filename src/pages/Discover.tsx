@@ -1,10 +1,13 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Search, SlidersHorizontal } from "lucide-react";
-import { categoryLabel, places, type Category } from "../data/places";
+import { Search, SlidersHorizontal, List, Map as MapIcon, Columns } from "lucide-react";
+import { categoryLabel, places, type Category, type Place } from "../data/places";
 import PlaceCard from "../components/PlaceCard";
+import PlaceListItem from "../components/PlaceListItem";
+import PlaceMap from "../components/PlaceMap";
 
 const categories: Category[] = ["cafe", "kuliner", "wisata", "nugas"];
+type ViewMode = "list" | "split" | "map";
 const allAreas = Array.from(new Set(places.map((p) => p.area))).sort();
 const allTags = Array.from(new Set(places.flatMap((p) => p.tags))).sort();
 
@@ -19,6 +22,8 @@ export default function Discover() {
   const [minRating, setMinRating] = useState(0);
   const [tag, setTag] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
+  const [view, setView] = useState<ViewMode>("split");
+  const [activePlace, setActivePlace] = useState<Place | null>(null);
 
   const filtered = useMemo(() => {
     return places.filter((p) => {
@@ -144,17 +149,67 @@ export default function Discover() {
         )}
       </div>
 
-      <p className="text-sm text-slate-500">{filtered.length} tempat ditemukan</p>
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-slate-500">{filtered.length} tempat ditemukan</p>
+        <div className="flex gap-1 rounded-full border border-slate-200 bg-white p-1">
+          {(
+            [
+              { mode: "list" as ViewMode, icon: List, label: "List" },
+              { mode: "split" as ViewMode, icon: Columns, label: "Split" },
+              { mode: "map" as ViewMode, icon: MapIcon, label: "Map" },
+            ]
+          ).map(({ mode, icon: Icon, label }) => (
+            <button
+              key={mode}
+              onClick={() => setView(mode)}
+              className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                view === mode ? "bg-orange-500 text-white" : "text-slate-500 hover:bg-slate-100"
+              }`}
+            >
+              <Icon size={14} />
+              <span className="hidden sm:inline">{label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
 
       {filtered.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-slate-300 p-10 text-center text-slate-400">
           Tidak ada tempat yang cocok dengan filter ini.
         </div>
-      ) : (
+      ) : view === "list" ? (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3">
           {filtered.map((place) => (
             <PlaceCard key={place.id} place={place} />
           ))}
+        </div>
+      ) : view === "map" ? (
+        <PlaceMap
+          places={filtered}
+          activeId={activePlace?.id}
+          onMarkerClick={setActivePlace}
+          heightClassName="h-[560px]"
+        />
+      ) : (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
+          <div className="flex max-h-[560px] flex-col gap-2 overflow-y-auto pr-1 md:col-span-2">
+            {filtered.map((place) => (
+              <PlaceListItem
+                key={place.id}
+                place={place}
+                active={activePlace?.id === place.id}
+                onSelect={setActivePlace}
+              />
+            ))}
+          </div>
+          <div className="md:col-span-3">
+            <PlaceMap
+              places={filtered}
+              activeId={activePlace?.id}
+              onMarkerClick={setActivePlace}
+              heightClassName="h-[560px]"
+            />
+          </div>
         </div>
       )}
     </div>
