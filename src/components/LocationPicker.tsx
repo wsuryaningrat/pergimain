@@ -1,4 +1,5 @@
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import { useEffect } from "react";
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 
 const pinIcon = L.divIcon({
@@ -22,6 +23,18 @@ function ClickHandler({ onPick }: { onPick: (lat: number, lng: number) => void }
   return null;
 }
 
+// Follow coordinates set from outside the map (pasted link, extension import).
+function FollowPosition({ latitude, longitude }: { latitude: number; longitude: number }) {
+  const map = useMap();
+  useEffect(() => {
+    const target = L.latLng(latitude, longitude);
+    if (!map.getBounds().pad(-0.2).contains(target)) {
+      map.setView(target, Math.max(map.getZoom(), 16));
+    }
+  }, [map, latitude, longitude]);
+  return null;
+}
+
 interface LocationPickerProps {
   latitude: number;
   longitude: number;
@@ -39,6 +52,7 @@ export default function LocationPicker({ latitude, longitude, onChange }: Locati
           maxZoom={19}
         />
         <ClickHandler onPick={onChange} />
+        <FollowPosition latitude={latitude} longitude={longitude} />
         <Marker position={[latitude, longitude]} icon={pinIcon} />
       </MapContainer>
       <p className="pointer-events-none absolute left-2 top-2 z-[1000] rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-medium text-slate-500">

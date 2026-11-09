@@ -6,6 +6,7 @@ import PlaceDetail from "./pages/PlaceDetail";
 import Saved from "./pages/Saved";
 import Itinerary from "./pages/Itinerary";
 import AddPlace from "./pages/AddPlace";
+import Extension from "./pages/Extension";
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="/saved" element={<Saved />} />
           <Route path="/itinerary" element={<Itinerary />} />
           <Route path="/tambah" element={<AddPlace />} />
+          <Route path="/ekstensi" element={<Extension />} />
         </Routes>
       </main>
     </div>

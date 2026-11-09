@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Compass, Heart, MapPinned, Home, PlusCircle } from "lucide-react";
+import { Compass, Heart, MapPinned, Home, PlusCircle, Puzzle } from "lucide-react";
 
 const links = [
   { to: "/", label: "Home", icon: Home },
@@ -9,16 +9,19 @@ const links = [
   { to: "/tambah", label: "Tambah", icon: PlusCircle },
 ];
 
+// Desktop header only — the mobile bottom bar stays at five items.
+const desktopLinks = [...links, { to: "/ekstensi", label: "Ekstensi", icon: Puzzle }];
+
 export default function NavBar() {
   return (
     <>
       <header className="sticky top-0 z-40 hidden border-b border-slate-200 bg-white/80 backdrop-blur md:block">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <NavLink to="/" className="flex items-center gap-2 text-xl font-bold text-slate-900">
-            <span className="text-2xl">🧭</span> PergiMain
+            <span className="text-2xl">🧭</span> Hangout
           </NavLink>
           <nav className="flex items-center gap-1">
-            {links.map(({ to, label, icon: Icon }) => (
+            {desktopLinks.map(({ to, label, icon: Icon }) => (
               <NavLink
                 key={to}
                 to={to}

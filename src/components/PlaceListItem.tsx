@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Heart, Star, PlusCircle, CheckCircle2 } from "lucide-react";
 import { categoryColor, categoryLabel, type Place } from "../data/places";
+import { imageFallback } from "../utils/placeholder";
 import { useApp } from "../context/AppContext";
 import { formatIDR } from "../utils/format";
 
@@ -24,7 +25,7 @@ export default function PlaceListItem({
         active ? "border-orange-400 bg-orange-50 shadow-sm" : "border-slate-200 bg-white hover:border-orange-200"
       }`}
     >
-      <img src={place.image} alt={place.name} className="h-16 w-16 shrink-0 rounded-lg object-cover" />
+      <img src={place.image} alt={place.name} onError={imageFallback(place.category, place.name)} className="h-16 w-16 shrink-0 rounded-lg object-cover" />
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
           <Link

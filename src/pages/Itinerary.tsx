@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowUp, ArrowDown, Trash2, MapPinned, Wallet, Clock, Navigation, Loader2 } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { categoryColor, categoryLabel } from "../data/places";
+import { imageFallback } from "../utils/placeholder";
 import { formatIDR, formatMinutes, haversineKm, estimateTravelMinutes } from "../utils/format";
 import { fetchDrivingRoute, type DrivingRoute } from "../utils/osrm";
 import MinimalMap from "../components/MinimalMap";
@@ -119,6 +120,7 @@ export default function Itinerary() {
                 <img
                   src={item.place.image}
                   alt={item.place.name}
+                  onError={imageFallback(item.place.category, item.place.name)}
                   className="h-16 w-16 shrink-0 rounded-xl object-cover"
                 />
                 <div className="flex-1">

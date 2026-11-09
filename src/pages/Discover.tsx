@@ -1,13 +1,12 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search, SlidersHorizontal, List, Map as MapIcon, Columns } from "lucide-react";
-import { categoryLabel, type Category, type Place } from "../data/places";
+import { categories, categoryLabel, type Category, type Place } from "../data/places";
 import { useApp } from "../context/AppContext";
 import PlaceCard from "../components/PlaceCard";
 import PlaceListItem from "../components/PlaceListItem";
 import MinimalMap from "../components/MinimalMap";
 
-const categories: Category[] = ["cafe", "kuliner", "wisata", "nugas"];
 type ViewMode = "list" | "split" | "map";
 
 export default function Discover() {
@@ -52,7 +51,7 @@ export default function Discover() {
     <div className="flex flex-col gap-6 pb-10">
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Discover Places</h1>
-        <p className="text-sm text-slate-500">Cari cafe, kuliner, wisata, dan tempat nugas di Bandung.</p>
+        <p className="text-sm text-slate-500">Cari cafe, kuliner, wisata, tempat nugas, kampus, dan masjid kajian di Bandung.</p>
       </div>
 
       <div className="flex flex-col gap-3">

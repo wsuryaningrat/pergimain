@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <title>Hangout</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <img src="icons/icon32.png" alt="" width="22" height="22" />
+      <strong>Tambah ke Hangout</strong>
+      <button id="toggle-settings" class="ghost" title="Pengaturan">⚙︎</button>
+    </header>
+
+    <section id="settings" hidden>
+      <label>
+        URL website Hangout
+        <input id="base-url" placeholder="https://hangout.wsningrat.com" />
+      </label>
+      <div class="row">
+        <button class="chip" data-preset="https://hangout.wsningrat.com">Production</button>
+        <button class="chip" data-preset="http://localhost:5173">Localhost</button>
+      </div>
+      <label class="check">
+        <input type="checkbox" id="auto-panel" /> Buka panel otomatis di Instagram &amp; Google Maps
+      </label>
+      <button id="save-settings" class="small">Simpan</button>
+      <p class="hint">Data tersimpan di browser per domain: tempat yang ditambah di localhost tidak muncul di versi online.</p>
+    </section>
+
+    <button id="show-panel" class="soft wide" hidden>Tampilkan panel di halaman ini</button>
+    <div id="panel-root"></div>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

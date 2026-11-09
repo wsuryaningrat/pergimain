@@ -5,11 +5,13 @@ interface ItineraryItem {
   place: Place;
 }
 
-const USER_PLACES_KEY = "pergimain_user_places";
+const USER_PLACES_KEY = "hangout_user_places";
+// Key used before the rebrand from PergiMain; read once so saved places survive.
+const LEGACY_USER_PLACES_KEY = "pergimain_user_places";
 
 function loadUserPlaces(): Place[] {
   try {
-    const raw = localStorage.getItem(USER_PLACES_KEY);
+    const raw = localStorage.getItem(USER_PLACES_KEY) ?? localStorage.getItem(LEGACY_USER_PLACES_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed : [];

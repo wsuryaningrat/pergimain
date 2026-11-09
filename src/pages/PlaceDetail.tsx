@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Clock, Heart, MapPin, Star, PlusCircle, CheckCircle2, UserRound } from "lucide-react";
+import { ArrowLeft, Clock, Heart, MapPin, Star, PlusCircle, CheckCircle2, UserRound, ExternalLink } from "lucide-react";
 import { categoryColor, categoryLabel } from "../data/places";
+import { imageFallback } from "../utils/placeholder";
+import { sourceLabel } from "../utils/importSource";
 import { useApp } from "../context/AppContext";
 import { formatIDR, formatMinutes } from "../utils/format";
 
@@ -31,7 +33,7 @@ export default function PlaceDetail() {
       </Link>
 
       <div className="relative h-56 w-full overflow-hidden rounded-3xl bg-slate-100 md:h-72">
-        <img src={place.image} alt={place.name} className="h-full w-full object-cover" />
+        <img src={place.image} alt={place.name} onError={imageFallback(place.category, place.name)} className="h-full w-full object-cover" />
         <span className={`absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold ${categoryColor[place.category]}`}>
           {categoryLabel[place.category]}
         </span>
@@ -63,7 +65,17 @@ export default function PlaceDetail() {
             <UserRound size={14} /> Ditambahkan oleh pengguna
           </p>
         )}
-        <p className="text-slate-600">{place.description}</p>
+        <p className="whitespace-pre-line text-slate-600">{place.description}</p>
+        {place.source_url && (
+          <a
+            href={place.source_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex w-fit items-center gap-1 text-xs font-medium text-orange-600 hover:underline"
+          >
+            <ExternalLink size={14} /> Lihat sumber ({sourceLabel(place.source_url)})
+          </a>
+        )}
 
         <div className="flex flex-wrap gap-2">
           {place.tags.map((tag) => (

@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
-import { Compass, MapPinned, Heart, ArrowRight } from "lucide-react";
-import { categoryLabel, places, type Category } from "../data/places";
+import { Compass, MapPinned, Heart, ArrowRight, Puzzle } from "lucide-react";
+import { categories, categoryEmoji, categoryLabel, places } from "../data/places";
 import PlaceCard from "../components/PlaceCard";
 
-const categories: Category[] = ["cafe", "kuliner", "wisata", "nugas"];
 
 export default function Home() {
   const highlights = places.filter((p) => p.rating >= 4.6).slice(0, 4);
@@ -15,10 +14,10 @@ export default function Home() {
           Data simulasi • Bandung
         </p>
         <h1 className="max-w-xl text-3xl font-extrabold leading-tight md:text-4xl">
-          Bingung mau ke mana? Susun jalan-jalanmu di PergiMain.
+          Bingung mau ke mana? Susun jalan-jalanmu di Hangout.
         </h1>
         <p className="mt-3 max-w-md text-sm text-white/90 md:text-base">
-          Temukan cafe, kuliner, wisata, dan tempat nugas di Bandung, lalu rangkai jadi itinerary harian lengkap dengan estimasi waktu dan budget.
+          Temukan cafe, kuliner, wisata, tempat nugas, kampus, dan masjid kajian di Bandung, lalu rangkai jadi itinerary harian lengkap dengan estimasi waktu dan budget.
         </p>
         <Link
           to="/discover"
@@ -29,7 +28,7 @@ export default function Home() {
       </section>
 
       <section>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <div className="grid grid-cols-3 gap-3 md:grid-cols-6">
           {categories.map((cat) => (
             <Link
               key={cat}
@@ -37,7 +36,7 @@ export default function Home() {
               className="flex flex-col items-center gap-2 rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-md"
             >
               <span className="text-2xl">
-                {cat === "cafe" ? "☕" : cat === "kuliner" ? "🍜" : cat === "wisata" ? "🏞️" : "📚"}
+                {categoryEmoji[cat]}
               </span>
               <span className="text-sm font-semibold text-slate-700">{categoryLabel[cat]}</span>
             </Link>
@@ -83,6 +82,19 @@ export default function Home() {
             <p className="font-semibold text-slate-900">Tempat Favorit</p>
             <p className="text-sm text-slate-500">Lihat semua tempat yang sudah disimpan</p>
           </div>
+        </Link>
+        <Link
+          to="/ekstensi"
+          className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md md:col-span-2"
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-900 text-white">
+            <Puzzle size={22} />
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-slate-900">Download Ekstensi Chrome</p>
+            <p className="text-sm text-slate-500">Tambah tempat langsung dari post Instagram atau Google Maps — datanya terisi otomatis</p>
+          </div>
+          <ArrowRight size={18} className="text-slate-400" />
         </Link>
       </section>
     </div>

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Heart, Star, Clock, PlusCircle, CheckCircle2 } from "lucide-react";
 import { categoryColor, categoryLabel, type Place } from "../data/places";
+import { imageFallback } from "../utils/placeholder";
 import { useApp } from "../context/AppContext";
 import { formatIDR } from "../utils/format";
 
@@ -15,6 +16,7 @@ export default function PlaceCard({ place }: { place: Place }) {
         <img
           src={place.image}
           alt={place.name}
+          onError={imageFallback(place.category, place.name)}
           loading="lazy"
           className="h-full w-full object-cover transition group-hover:scale-105"
         />

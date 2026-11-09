@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-
 import L from "leaflet";
 import { Link } from "react-router-dom";
 import type { Place, Category } from "../data/places";
-import { categoryLabel } from "../data/places";
+import { categoryEmoji, categoryLabel } from "../data/places";
 import { formatIDR } from "../utils/format";
 
 const categoryDot: Record<Category, string> = {
@@ -11,16 +11,13 @@ const categoryDot: Record<Category, string> = {
   kuliner: "#e11d48",
   wisata: "#059669",
   nugas: "#0284c7",
+  kampus: "#4f46e5",
+  masjid: "#0d9488",
 };
 
 // Distinct glyph per category so each kind of place is recognizable on the
 // map at a glance, without having to open a popup.
-const categoryGlyph: Record<Category, string> = {
-  cafe: "☕",
-  kuliner: "🍜",
-  wisata: "🏞️",
-  nugas: "💻",
-};
+const categoryGlyph: Record<Category, string> = categoryEmoji;
 
 function makeIcon(category: Category, color: string, label?: string | number, active?: boolean) {
   const size = active ? 32 : label ? 28 : 24;

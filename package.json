@@ -1,13 +1,16 @@
 {
-  "name": "pergimain",
+  "name": "hangout",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "predev": "node scripts/zip-extension.mjs",
     "dev": "vite",
+    "prebuild": "node scripts/zip-extension.mjs",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "zip:extension": "node scripts/zip-extension.mjs"
   },
   "dependencies": {
     "leaflet": "^1.9.4",
